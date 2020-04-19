@@ -1,0 +1,351 @@
+; ------------------------------------------------------------------------
+; BlitzSonic Engine -- Classic Sonic the Hedgehog engine for Blitz 3D
+; version 0.1, February 7th, 2008
+;
+; Copyright (C) 2008 - BlitzSonic Team.
+; ------------------------------------------------------------------------
+;
+; This software is provided 'as-is', without any express or implied
+; warranty.  In no event will the authors be held liable for any damages
+; arising from the use of this software.
+; 
+; Permission is granted to anyone to use this software for any purpose
+; (except for commercial applications) and to alter it and redistribute
+; it freely subject to the following restrictions:
+;
+; 1. The origin of this software must not be misrepresented; you must not
+;    claim that you wrote the original software. If you use this software
+;    in a product, an acknowledgment in the product itself as a splash
+;    screen is required.
+; 2. Altered source versions must be plainly marked as such, and must not be
+;    misrepresented as being the original software.
+; 3. This notice may not be removed or altered from any source distribution.
+;
+; All characters and materials in relation to the Sonic the Hedgehog game series
+; are copyrights/trademarks of SEGA of Japan (SEGA Co., LTD). This product
+; has been developed without permission of SEGA, therefore it's prohibited
+; to sell/make profit of it.
+;
+; The BlitzSonic Team:
+; - Héctor "Damizean" (elgigantedeyeso at gmail dot com)
+; - Mark "Coré" (mabc_bh at yahoo dot com dot br)
+; - Streak Thunderstorm
+; - Mista ED
+;
+
+;\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/;
+;	Project Title : Sonic the Hedgehog                                                                         ;
+; ============================================================================================================ ;
+;	Author :                                                                                                   ;
+;	Email :                                                                                                    ;
+;	Version: 0.1                                                                                               ;
+;	Date: --/--/2008                                                                                           ;
+;                                                                                                              ;
+;\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/;
+;                                                                                                              ;
+;   Changelog:  -(Damizean)------------------------------->                                                    ;
+;               16/01/2008 - Code reorganization.                                                              ;
+;                                                                                                              ;
+;==============================================================================================================;
+;                                                                                                              ;
+;   TODO: - Implement structures for actions and object interaction                                            ;
+;                                                                                                              ;
+;==============================================================================================================;
+
+; /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
+; 	STRUCTURES
+; /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
+
+	; ---------------------------------------------------------------------------------------------------------
+	; tPlayer
+	; ---------------------------------------------------------------------------------------------------------
+	Type tPlayer
+		; Player objects and entities
+		Field Objects.tPlayer_Objects
+
+		; Player motion values
+		Field Motion.tPlayer_Motion
+
+		; Other values
+		Field Character
+		Field Action
+		Field Flags.tPlayer_Flags
+		Field Animation.tPlayer_Animation
+		Field SpindashCharge
+		Field Attacking
+		Field Frame
+		
+		Field EnemyX#
+		Field EnemyY#
+		Field EnemyZ#
+		
+		Field DashRunOutTimer
+	End Type
+
+
+	; ---------------------------------------------------------------------------------------------------------	
+	; tPlayer_Objects
+	; ---------------------------------------------------------------------------------------------------------
+	Type tPlayer_Objects
+		Field Entity
+		Field Camera.tCamera
+		Field Shadow
+		Field Mesh
+		Field Mesh_Balance
+		Field Mesh_Head
+		Field Mesh_Arms
+		Field Mesh_Torso
+		Field Mesh_Legs
+		Field Mesh_Shield
+		Field Mesh_JumpBall
+		Field Mesh_Spindash
+	End Type 
+	
+	; ---------------------------------------------------------------------------------------------------------	
+	; tPlayer_Motion
+	; ---------------------------------------------------------------------------------------------------------
+	; Contains information of player object's motion, such as speed and
+	; other values.
+	; ---------------------------------------------------------------------------------------------------------
+	Type tPlayer_Motion
+		Field Speed.tVector
+		Field Align.tVector
+		Field Ground
+	End Type
+
+	; ---------------------------------------------------------------------------------------------------------	
+	; tPlayer_Flags
+	; ---------------------------------------------------------------------------------------------------------
+	Type tPlayer_Flags
+		Field AllowCommonInput
+		Field AllowXZMovement
+		Field AllowYMovement
+		Field AllowSkidding
+		Field Hurt
+		Field Shield
+		Field Invincibility
+		Field SpeedSneakers
+		Field Skidding
+	End Type
+
+	; ---------------------------------------------------------------------------------------------------------	
+	; tPlayer_Animation
+	; ---------------------------------------------------------------------------------------------------------
+	Type tPlayer_Animation
+		Field Animation
+		Field PreviousAnimation
+		Field Time#
+		Field Direction#
+		Field Tilt#
+		Field Align.tVector
+	End Type 
+
+; /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+; 	CONSTANTS
+; /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+
+	; Character values
+	Const CHARACTER_SONIC			= 0
+	Const CHARACTER_TAILS			= 1
+	Const CHARACTER_KNUCKLES		= 2
+	
+	; Action constants
+	Const ACTION_COMMON				= 0
+	Const ACTION_JUMP				= 1
+	Const ACTION_CROUCH				= 2
+	Const ACTION_SPINDASH			= 3
+	Const ACTION_FALL				= 4
+	Const ACTION_JUMPDASH			= 5
+	Const ACTION_SPRING				= 6
+	Const ACTION_SPRINGFALL			= 7
+	Const ACTION_STOMP				= 8
+	Const ACTION_HOMING				= 9
+
+	; Common values
+	Const COMMON_XZACCELERATION#	= 0.052875 ;0.046875
+	Const COMMON_XZDECELERATION#	= 0.024
+	Const COMMON_SKIDDINGFACTOR#	= 0.005
+	Const COMMON_XZTOPSPEED#		= 4.7
+	Const COMMON_XZMAXSPEED#		= 5.0
+	Global COMMON_YACCELERATION#	= 0.04
+	Const COMMON_YTOPSPEED#			= -3.0
+
+	; Motion values
+	Const MOTION_GROUND#			= 0.65
+	Const MOTION_CEILING#			= -0.65
+	Const MOTION_CEILING_STOP#		= -0.79
+	Const MOTION_WALL_UP#			= -0.7
+	Const MOTION_WALL_DOWN#			= 0.2
+	Const MOTION_WALL_DIRECTION#	= 0.3
+
+	; Jump values
+	Const JUMP_STRENGHT#			= 1.4
+	Const JUMP_STRENGHT_VARIABLE#	= 0.7
+
+; /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+; 	METHODS
+; /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+
+	; ---- Creation/Destruction and management ----
+	; =========================================================================================================
+	; Player_Create
+	; =========================================================================================================
+	Function Player_Create.tPlayer(Character=0)
+		; Create new player object
+		p.tPlayer 	= New tPlayer
+
+		; Create objects
+		p\Objects 	= New tPlayer_Objects
+		p\Motion  	= New tPlayer_Motion
+		p\Flags		= New tPlayer_Flags
+		p\Animation	= New tPlayer_Animation
+		
+		p\Motion\Speed    = Vector(0, 0, 0)
+		p\Motion\Align 	  = Vector(0, 1, 0)
+		p\Animation\Align = Vector(0, 1, 0)
+		
+		p\DashRunOutTimer = 0
+		p\Attacking = 0
+		
+		p\Objects\Entity  = CreatePivot(Game\Stage\Root)
+		
+		p\Flags\AllowCommonInput = True
+		p\Flags\AllowXZMovement  = True
+		p\Flags\AllowYMovement   = True
+		
+		
+		; Setup character values
+		p\Character = Character
+		Select p\Character
+			Case CHARACTER_SONIC
+				; Load mesh
+				p\Objects\Mesh 			= CopyEntity(Mesh_Sonic, Game\Stage\Root)
+				;ScaleEntity(p\Objects\Mesh, GAME_SCALE#, GAME_SCALE#, GAME_SCALE#)
+
+				p\Objects\Mesh_Balance	= FindChild(p\Objects\Mesh, "Bone01")
+				p\Objects\Mesh_Head 	= FindChild(p\Objects\Mesh, "Head")
+				p\Objects\Mesh_Arms 	= FindChild(p\Objects\Mesh, "Arms")
+				p\Objects\Mesh_Torso 	= FindChild(p\Objects\Mesh, "Torso")
+				p\Objects\Mesh_Legs 	= FindChild(p\Objects\Mesh, "Legs")
+
+		;		p\Objects\Mesh_Spindash = CopyEntity(Mesh_Sonic_Spindash, Game\Stage\Root)
+		;		p\Objects\Mesh_JumpBall = CopyEntity(Mesh_Sonic_JumpBall, p\Objects\Mesh)
+		;		ScaleEntity(p\Objects\Mesh_Spindash, GAME_SCALE#, GAME_SCALE#, GAME_SCALE#)
+		;		HideEntity p\Objects\Mesh_Spindash
+
+			Case CHARACTER_TAILS
+			Case CHARACTER_KNUCKLES
+		End Select
+
+		; Create shadow quad
+		p\Objects\Shadow = CreateQuad(4, 4, 2, 2, Game\Stage\Root)
+		EntityTexture(p\Objects\Shadow, Textures_Shadow)
+		
+		; Setup pivot collision
+		EntityType(p\Objects\Entity, COLLISION_PLAYER)
+		EntityRadius(p\Objects\Entity, 2.20)
+
+		; Done
+		Return p
+	End Function
+
+
+	; =========================================================================================================
+	; Player_Destroy
+	; =========================================================================================================
+	Function Player_Destroy(p.tPlayer)
+		FreeEntity(p\Objects\Entity)
+		FreeEntity(p\Objects\Mesh)
+		
+		Delete p\Motion\Speed
+		Delete p\Motion\Align
+		Delete p\Animation\Align
+		Delete p\Objects
+		Delete p\Motion
+		Delete p\Animation
+		Delete p\Flags
+	End Function
+
+
+	; =========================================================================================================
+	; Player_Update
+	; =========================================================================================================
+	Function Player_Update(p.tPlayer, d.tDeltaTime)
+		; Perform player's movement
+		Player_Motion(p, d)
+		
+		; Handle actions
+		Player_Handle(p, d)
+		Select p\Action
+			Case ACTION_COMMON
+				AirNormal()
+				p\Attacking = 0
+			;	p\AbleToJumpDash = 0
+				Player_Action_Common(p, d)
+			Case ACTION_JUMP
+				AirSlow()
+				p\Attacking = 1
+			;	p\AbleToJumpDash = 1
+				Player_Action_Jump(p, d)
+			Case ACTION_CROUCH
+				AirNormal()
+				p\Attacking = 0
+			;	p\AbleToJumpDash = 1
+				Player_Action_Crouch(p, d)
+			Case ACTION_SPINDASH
+				AirNormal()
+				p\Attacking = 1
+				Player_Action_Spindash(p, d)
+			Case ACTION_FALL
+				AirSlow()
+				p\Attacking = 0
+				Player_Action_Fall(p, d)
+			Case ACTION_JUMPDASH
+				AirNormal()
+				p\Attacking = 1
+				Player_Action_JumpDash(p, d)
+			Case ACTION_SPRING
+				AirNormal()
+				p\Attacking = 0
+				Player_Action_Spring(p, d)
+			Case ACTION_SPRINGFALL
+				AirNormal()
+				p\Attacking = 0
+				Player_Action_SpringFall(p, d)
+			Case ACTION_STOMP
+				AirNormal()
+				p\Attacking = 1
+				Player_Action_Stomp(p, d)
+			Case ACTION_HOMING
+				AirNormal()
+				p\Attacking = 1
+				Player_Action_Homing(p, d)
+		End Select
+
+		; Animate
+		Player_Animate(p, d)
+	End Function
+	
+Function AirSlow()
+	
+	For p.tPlayer = Each tPlayer
+	If (p\Motion\Speed\y# > 2.5) Then
+	COMMON_YACCELERATION#		= 0.12
+	EndIf
+	If (p\Motion\Speed\y# > 3.8) Then
+	COMMON_YACCELERATION#		= 0.17
+	EndIf
+	If (p\Motion\Speed\y# < 3) Then
+	COMMON_YACCELERATION#		= 0.04
+	EndIf
+	Next
+	
+End Function
+
+Function AirNormal()
+
+	For p.tPlayer = Each tPlayer
+	COMMON_YACCELERATION#	= 0.04
+	Next
+	
+End Function

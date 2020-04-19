@@ -1,0 +1,119 @@
+; ------------------------------------------------------------------------
+; BlitzSonic Engine -- Classic Sonic the Hedgehog engine for Blitz 3D
+; version 0.1, February 7th, 2008
+;
+; Copyright (C) 2008 - BlitzSonic Team.
+; ------------------------------------------------------------------------
+;
+; This software is provided 'as-is', without any express or implied
+; warranty.  In no event will the authors be held liable for any damages
+; arising from the use of this software.
+; 
+; Permission is granted to anyone to use this software for any purpose
+; (except for commercial applications) and to alter it and redistribute
+; it freely subject to the following restrictions:
+;
+; 1. The origin of this software must not be misrepresented; you must not
+;    claim that you wrote the original software. If you use this software
+;    in a product, an acknowledgment in the product itself as a splash
+;    screen is required.
+; 2. Altered source versions must be plainly marked as such, and must not be
+;    misrepresented as being the original software.
+; 3. This notice may not be removed or altered from any source distribution.
+;
+; All characters and materials in relation to the Sonic the Hedgehog game series
+; are copyrights/trademarks of SEGA of Japan (SEGA Co., LTD). This product
+; has been developed without permission of SEGA, therefore it's prohibited
+; to sell/make profit of it.
+;
+; The BlitzSonic Team:
+; - H?ctor "Damizean" (elgigantedeyeso at gmail dot com)
+; - Mark "Cor?" (mabc_bh at yahoo dot com dot br)
+; - Streak Thunderstorm
+; - Mista ED
+;
+
+;\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/;
+;	Project Title : Sonic the Hedgehog                                                                         ;
+; ============================================================================================================ ;
+;	Author :                                                                                                   ;
+;	Email :                                                                                                    ;
+;	Version: 0.1                                                                                               ;
+;	Date: --/--/2008                                                                                           ;
+;                                                                                                              ;
+;\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/;
+;                                                                                                              ;
+;   Changelog:  -(Damizean)------------------------------->                                                    ;
+;               17/01/2008 - Code reorganization.                                                              ;
+;                                                                                                              ;
+;==============================================================================================================;
+;                                                                                                              ;
+;   TODO:                                                                                                      ;
+;                                                                                                              ;
+;==============================================================================================================;
+
+; /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+;   VARIABLES
+; /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+
+	; ---- Images ----
+	Global Interface_ScoreTimeRings_Texture	= LoadTexture("Interface/ScoreTimeRings.png", 1+2+256)
+	Global Interface_ScoreTimeRings			= CreateImageex(Interface_ScoreTimeRings_Texture, 256, 128, FI_FILTERED)
+	Global Interface_Numbers_Texture		= LoadAnimTexture("Interface/Numbers.png", 1+2+256, 32, 32, 0, 10)
+	Global Interface_Numbers				= CreateImageEx(Interface_Numbers_Texture, 32, 32, FI_FILTERED)
+	Global Interface_Icons_Texture			= LoadAnimTexture("Interface/Icons.png", 1+2+256, 64, 64, 0, 3)
+	Global Interface_Icons					= CreateImageEx(Interface_Icons_Texture, 64, 64, FI_FILTERED)
+	Global Interface_Pause_Texture			= LoadTexture("Interface/Pause.png", 1+2+256)
+	Global Interface_Pause					= CreateImageEx(Interface_Pause_Texture, 512, 256, FI_FILTERED)
+	Global Interface_MenuBG_Texture			= LoadTexture("Interface/MenuBG.png", 1+2+256)
+	Global Interface_MenuBG					= CreateImageEx(Interface_MenuBG_Texture, 512, 256, FI_FILTERED)
+	
+	Global Interface_GoalDisplay_Texture	= LoadTexture("Interface/GoalDisplay.png", 1+2+256)
+	Global Interface_GoalDisplay			= CreateImageEx(Interface_GoalDisplay_Texture, 512, 256, FI_FILTERED)
+	
+	Global Interface_Menu_Texture			= LoadTexture("Interface/Menu/Menu_Beta.png", 1+2+256)
+	Global Interface_Menu					= CreateImageEx(Interface_Menu_Texture, 640, 480, FI_FILTERED)
+	
+	Global DebugFont_Texture   				= LoadAnimTexture("Interface/DebugFont.png", 1+2+256, 16, 16, 0, 70)
+	Global DebugFont      					= CreateImageEx(DebugFont_Texture, 16, 16, FI_FILTERED)
+	
+	;Global HomingTarget						= LoadSprite ("Textures/HomingTarget.png",4,0)
+	MidHandleImage(Interface_Pause)
+	
+	; ---- Textures ----
+	Global Textures_Shadow					= LoadTexture("Textures/Shadow.png", 1+2)
+	Global FadeTexture						= LoadTexture("Textures/Fade.png", 1+2+256)
+	Global BBOverlay						= LoadTexture("Textures/BBlastOverlay.png", 1+2+256)
+	
+	; WATER TEXTURE
+	
+	Global water1 = LoadTexture("Textures\Water\0.png") : ScaleTexture water1, 50,50
+    Global water2 = LoadTexture("Textures\Water\1.png") : ScaleTexture water2, 50,50
+    Global water3 = LoadTexture("Textures\Water\2.png") : ScaleTexture water3, 50,50
+    Global water4 = LoadTexture("Textures\Water\3.png") : ScaleTexture water4, 50,50
+    Global water5 = LoadTexture("Textures\Water\4.png") : ScaleTexture water5, 50,50
+    Global water6 = LoadTexture("Textures\Water\5.png") : ScaleTexture water6, 50,50
+    Global water7 = LoadTexture("Textures\Water\6.png") : ScaleTexture water7, 50,50
+    Global water8 = LoadTexture("Textures\Water\7.png") : ScaleTexture water8, 50,50
+    Global water9 = LoadTexture("Textures\Water\8.png") : ScaleTexture water9, 50,50
+    Global water10 = LoadTexture("Textures\Water\9.png") : ScaleTexture water10, 50,50
+    Global water11 = LoadTexture("Textures\Water\10.png") : ScaleTexture water11, 50,50
+    Global water12 = LoadTexture("Textures\Water\11.png") : ScaleTexture water12, 50,50
+    Global water13 = LoadTexture("Textures\Water\12.png") : ScaleTexture water13, 50,50
+    Global water14 = LoadTexture("Textures\Water\13.png") : ScaleTexture water14, 50,50
+	
+	Global lava1 = LoadTexture("Textures\Lava\1.bmp") : ScaleTexture lava1, 10,10
+	Global lava2 = LoadTexture("Textures\Lava\2.bmp") : ScaleTexture lava2, 10,10
+	Global lava3 = LoadTexture("Textures\Lava\3.bmp") : ScaleTexture lava3, 10,10
+	Global lava4 = LoadTexture("Textures\Lava\4.bmp") : ScaleTexture lava4, 10,10
+	Global lava5 = LoadTexture("Textures\Lava\5.bmp") : ScaleTexture lava5, 10,10
+	Global lava6 = LoadTexture("Textures\Lava\6.bmp") : ScaleTexture lava6, 10,10
+	Global lava7 = LoadTexture("Textures\Lava\7.bmp") : ScaleTexture lava7, 10,10
+	Global lava8 = LoadTexture("Textures\Lava\8.bmp") : ScaleTexture lava8, 10,10
+	Global lava9 = LoadTexture("Textures\Lava\9.bmp") : ScaleTexture lava9,10,10
+	Global lava10 = LoadTexture("Textures\Lava\10.bmp") : ScaleTexture lava10, 10,10
+	Global lava11 = LoadTexture("Textures\Lava\11.bmp") : ScaleTexture lava11, 10,10
+	Global lava12 = LoadTexture("Textures\Lava\12.bmp") : ScaleTexture lava12, 10,10
+	Global lava13 = LoadTexture("Textures\Lava\13.bmp") : ScaleTexture lava13, 10,10
+;~IDEal Editor Parameters:
+;~C#Blitz3D
